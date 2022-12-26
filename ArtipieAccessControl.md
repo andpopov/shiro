@@ -19,3 +19,19 @@ repomaven_writer = repomaven:writer
 repomaven_admin = repomaven:*
 ```
 
+Methods of Artipie can be annotated to require specific permissions, something like these:
+```
+@Permission("$currentRepo:read")
+public void listOfMavenFiles(...)
+
+@Permission("$currentRepo:write")
+public void updateMavenArtifact(...)
+```
+
+Or code can explicitly check permission, something like this:
+```
+if ( SecurityUtils.getSubject().isPermitted(currentRepo() + ":read") {
+    // do something
+}
+```
+
