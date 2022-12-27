@@ -59,6 +59,7 @@ public class SampleAcn {
      * @param args input arguments for this application.  These are ignored.
      */
     public static void main(String[] args) {
+        System.getProperties().put("java.security.auth.login.config", "C:\\projects\\shiro\\jaas_sample\\src\\sample\\sample_jaas.config");
 
         // Obtain a LoginContext, needed for authentication. Tell it
         // to use the LoginModule implementation specified by the
@@ -67,13 +68,8 @@ public class SampleAcn {
         LoginContext lc = null;
         try {
             lc = new LoginContext("Sample", new MyCallbackHandler());
-        } catch (LoginException le) {
-            System.err.println("Cannot create LoginContext. "
-                + le.getMessage());
-            System.exit(-1);
-        } catch (SecurityException se) {
-            System.err.println("Cannot create LoginContext. "
-                + se.getMessage());
+        } catch (LoginException | SecurityException exc) {
+            System.err.println("Cannot create LoginContext. " + exc.getMessage());
             System.exit(-1);
         }
 
@@ -81,23 +77,16 @@ public class SampleAcn {
         int i;
         for (i = 0; i < 3; i++) {
             try {
-
                 // attempt authentication
                 lc.login();
-
                 // if we return with no exception, authentication succeeded
                 break;
-
             } catch (LoginException le) {
-
                 System.err.println("Authentication failed:");
                 System.err.println("  " + le.getMessage());
                 try {
-                    Thread.currentThread().sleep(3000);
-                } catch (Exception e) {
-                    // ignore
-                }
-
+                    Thread.sleep(3000);
+                } catch (Exception e) {}
             }
         }
 
@@ -137,57 +126,43 @@ class MyCallbackHandler implements CallbackHandler {
     public void handle(Callback[] callbacks)
         throws IOException, UnsupportedCallbackException {
 
-        for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof TextOutputCallback) {
-
+        for (final Callback callback : callbacks) {
+            if (callback instanceof TextOutputCallback) {
                 // display the message according to the specified type
-                TextOutputCallback toc = (TextOutputCallback) callbacks[i];
+                TextOutputCallback toc = (TextOutputCallback) callback;
                 switch (toc.getMessageType()) {
-                    case TextOutputCallback.INFORMATION:
+                    case TextOutputCallback.INFORMATION ->
                         System.out.println(toc.getMessage());
-                        break;
-                    case TextOutputCallback.ERROR:
+                    case TextOutputCallback.ERROR ->
                         System.out.println("ERROR: " + toc.getMessage());
-                        break;
-                    case TextOutputCallback.WARNING:
+                    case TextOutputCallback.WARNING ->
                         System.out.println("WARNING: " + toc.getMessage());
-                        break;
-                    default:
-                        throw new IOException("Unsupported message type: " +
-                            toc.getMessageType());
+                    default ->
+                        throw new IOException("Unsupported message type: " + toc.getMessageType());
                 }
-
-            } else if (callbacks[i] instanceof NameCallback) {
-
+            } else if (callback instanceof NameCallback) {
                 // prompt the user for a username
-                NameCallback nc = (NameCallback) callbacks[i];
-
+                NameCallback nc = (NameCallback) callback;
                 System.err.print(nc.getPrompt());
                 System.err.flush();
-                nc.setName((new BufferedReader
-                    (new InputStreamReader(System.in))).readLine());
-
-            } else if (callbacks[i] instanceof PasswordCallback) {
-
+                nc.setName((new BufferedReader(new InputStreamReader(System.in))).readLine());
+            } else if (callback instanceof PasswordCallback) {
                 // prompt the user for sensitive information
-                PasswordCallback pc = (PasswordCallback) callbacks[i];
+                PasswordCallback pc = (PasswordCallback) callback;
                 System.err.print(pc.getPrompt());
                 System.err.flush();
                 pc.setPassword(readPassword(System.in));
-
             } else {
                 throw new UnsupportedCallbackException
-                    (callbacks[i], "Unrecognized Callback");
+                    (callback, "Unrecognized Callback");
             }
         }
     }
 
     // Reads user password from given input stream.
     private char[] readPassword(InputStream in) throws IOException {
-
         char[] lineBuffer;
         char[] buf;
-        int i;
 
         buf = lineBuffer = new char[128];
 
