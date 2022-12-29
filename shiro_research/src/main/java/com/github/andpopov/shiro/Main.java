@@ -19,6 +19,13 @@ public class Main {
             currentUser.login(new UsernamePasswordToken("user1", "password"));
         }
 
-        System.out.println(currentUser.isAuthenticated());
+        println(currentUser.isAuthenticated());
+        println(currentUser.isPermitted("article:create"));
+        println(currentUser.hasRole("editor"));
+
+    }
+
+    public static void println(Object arg) {
+        System.out.println(arg);
     }
 }
