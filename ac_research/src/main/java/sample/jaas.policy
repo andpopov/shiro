@@ -1,0 +1,3 @@
+grant principal com.sun.security.auth.UserPrincipal "testuser" {
+    permission com.baeldung.jaas.ResourcePermission "test_resource";
+}

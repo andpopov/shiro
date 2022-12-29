@@ -1,0 +1,1 @@
+java -classpath target\ac_research-1.0-SNAPSHOT-jar-with-dependencies.jar -Djava.security.manager -Djava.security.policy=C:\projects\shiro\ac_research\src\main\java\sample\jaas.policy sample/SampleAcn
